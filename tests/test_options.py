@@ -100,6 +100,24 @@ def test_help_spec(param_decls, kwargs, hidden, expected):
 
 
 @pytest.mark.parametrize(
+    ("param_decls", "kwargs", "expected"),
+    [
+        (["--foo"], {"multiple": True}, "--foo TEXT..."),
+        (["--foo"], {"multiple": True, "required": True}, "--foo TEXT..."),
+        (["--foo"], {"multiple": True, "nargs": 2}, "--foo TEXT..."),
+        (["--foo"], {"multiple": True, "type": int}, "--foo INTEGER..."),
+    ],
+)
+def test_help_spec_multiple(param_decls, kwargs, expected):
+    """A repeatable option signals its repetition with ``...`` in the help
+    spec, like ``--foo TEXT...``.
+    """
+    opt = click.Option(param_decls, **kwargs)
+    ctx = click.Context(click.Command("cli"))
+    assert opt.get_help_spec(ctx) == expected
+
+
+@pytest.mark.parametrize(
     ("param_decls", "expected_spec", "expected_name"),
     [
         (["-t", "--times"], "--times", "times"),
